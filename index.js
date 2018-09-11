@@ -72,7 +72,7 @@ let download_tor = function (torrents) {
 
 
         if (to_down(episode, season) & !cache[ep_id]) {
-            let folder_name = "/media/harshil/5BC5BA7D3CFE7239/Series/"+name+"/"+season+"/";
+            let folder_name = "~/Media/Series/"+name+"/"+season+"/";
 
             qbt.add(url, folder_name, ep_id, (error) => {
                  qbt.downloading(ep_id, {}, (error, items) => {
