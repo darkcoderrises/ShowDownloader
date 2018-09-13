@@ -58,9 +58,25 @@ to_down = function(episode, season) {
 cache = {};
 
 let url = 'https://eztv.ag/api/get-torrents?imdb_id=' + id + "&page=";
-var d_list = [];
-
 console.log(url);
+
+let execute_download = function (cache) {
+    Object.keys(cache).forEach(ep_id => {
+        let episodes = cache[ep_id];
+        let result = episodes.filter(episode => (200 <= episode.size && episode.size <= 500));
+        episodes.sort((a,b) => (a.size - b.size));
+        let e = result.length == 0 ? episodes[0] : result[0];
+
+        
+        qbt.add(e.url, e.folder_name, ep_id, (error) => {
+             qbt.downloading(ep_id, {}, (error, items) => {
+                 qbt.toggleSeqDl(items);
+            });
+            console.log("downloading");
+            sendMessage("Downloading " + e.name + " (" + e.season + "," + e.episode + ")");
+        });
+    });
+}
 
 let download_tor = function (torrents) {
     torrents.forEach(torrent => {
@@ -68,25 +84,19 @@ let download_tor = function (torrents) {
         let episode = result.episode;
         let season = result.season;
         let url = torrent.magnet_url;
+        let size = torrent.size_bytes / 1000000;
         let ep_id = episode + '-' + season;
 
 
-        if (to_down(episode, season) & !cache[ep_id]) {
-            let folder_name = "~/Media/Series/"+name+"/"+season+"/";
+        if (to_down(episode, season)) {
+            let folder_name = "/home/harshil/Media/Series/"+name+"/"+season+"/";
+            if (!cache[ep_id]) cache[ep_id] = [];
+            cache[ep_id].push({name, season, url, folder_name, size, episode});
 
-            qbt.add(url, folder_name, ep_id, (error) => {
-                 qbt.downloading(ep_id, {}, (error, items) => {
-                     qbt.toggleSeqDl(items);
-                });
-            });
-
-            console.log("downloading");
-
-            cache[ep_id] = 1;
-            d_list.push(ep_id);
-            sendMessage("Downloading " + name + " (" + season + "," + episode + ")");
         }
     });
+
+    execute_download(cache);
 };
 
 let request_pages = function (page) {
