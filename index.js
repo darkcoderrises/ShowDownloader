@@ -57,7 +57,7 @@ to_down = function(episode, season) {
 
 cache = {};
 
-let url = 'https://eztv.ag/api/get-torrents?imdb_id=' + id + "&page=";
+let url = 'https://eztv.ag/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
 console.log(url);
 
 let execute_download = function (cache) {
@@ -66,14 +66,13 @@ let execute_download = function (cache) {
         let result = episodes.filter(episode => (200 <= episode.size && episode.size <= 500));
         episodes.sort((a,b) => (a.size - b.size));
         let e = result.length == 0 ? episodes[0] : result[0];
-
         
         qbt.add(e.url, e.folder_name, ep_id, (error) => {
              qbt.downloading(ep_id, {}, (error, items) => {
                  qbt.toggleSeqDl(items);
             });
             console.log("downloading");
-            sendMessage("Downloading " + e.name + " (" + e.season + "," + e.episode + ")");
+            //sendMessage("Downloading " + e.name + " (" + e.season + "," + e.episode + ")");
         });
     });
 }
@@ -81,6 +80,7 @@ let execute_download = function (cache) {
 let download_tor = function (torrents) {
     torrents.forEach(torrent => {
         let result = parser(torrent.filename);
+        if (result == null) return;
         let episode = result.episode;
         let season = result.season;
         let url = torrent.magnet_url;
