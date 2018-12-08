@@ -37,7 +37,6 @@ let sendMessage = (msg) => { stack.push(msg); execute(); };
 let qbt = qbtApi.connect(config.qbittorent.host, config.qbittorent.username, config.qbittorent.password);
 let list = config.shows;
 
-
 show_episode = options["episode"];
 show_season = parseInt(options["season"]);
 id = options["id"];
@@ -72,7 +71,6 @@ let execute_download = function (cache) {
                  qbt.toggleSeqDl(items);
             });
             console.log("downloading");
-            //sendMessage("Downloading " + e.name + " (" + e.season + "," + e.episode + ")");
         });
     });
 }
@@ -85,7 +83,7 @@ let download_tor = function (torrents) {
         let season = result.season;
         let url = torrent.magnet_url;
         let size = torrent.size_bytes / 1000000;
-        let ep_id = episode + '-' + season;
+        let ep_id = season + '-' + episode;
 
 
         if (to_down(episode, season)) {
