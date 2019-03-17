@@ -3,36 +3,20 @@ var parser = require('episode-parser');
 var qbtApi = require('qbittorrent-api');
 var fs = require('fs');
 var login = require('facebook-chat-api');
+var FuzzySearch = require('fuzzy-search');
 var commandLineArgs = require('command-line-args');
 
 let config = JSON.parse(fs.readFileSync("./config.json"));
-let fbapi = null;
-let harshil_id = config.facebook.myID;
 
 const optionsDefs = [
     { name: "id", alias: "i", type: String },
     { name: "season", alias: "s", type: String },
     { name: "episode", alias: "e", type: String } ,
+    { name: "fuzzy", alias: 'f', type: String},
 ]
 const options = commandLineArgs(optionsDefs);
 
 let stack = [];
-
-let execute = () => {
-    if (!fbapi)
-        return;
-    while (stack.length > 0) {
-        let msg = stack.pop();
-        console.log("Sending ", msg);
-        fbapi.sendMessage(msg, harshil_id);
-    }
-};
-
-let sendMessage = (msg) => { stack.push(msg); execute(); }; 
-//login({email: config.facebook.username, password: config.facebook.password}, {pageID: config.facebook.alfredID}, (err, api) => {
-//    fbapi = api;
-//    execute();
-//});
 
 let qbt = qbtApi.connect(config.qbittorent.host, config.qbittorent.username, config.qbittorent.password);
 let list = config.shows;
@@ -40,11 +24,21 @@ let list = config.shows;
 show_episode = options["episode"];
 show_season = parseInt(options["season"]);
 id = options["id"];
-name = "";
 
-for (let i=0; i<list.length; i++) {
-    if (list[i][0] == id) name = list[i][1];
+if (options['fuzzy']) {
+    const search = new FuzzySearch(list.map(function (i) { return {name: i[1], id: i[0]}}), ['name']);
+    const result = search.search(options['fuzzy'])[0];
+    id = result.id;
+    name = result.name;
+} else {
+    name = "";
+
+    for (let i=0; i<list.length; i++) {
+        if (list[i][0] == id) name = list[i][1];
+    }
 }
+
+console.log(name);
 
 to_down = function(episode, season) {
     if (show_episode == "all") {
@@ -56,7 +50,7 @@ to_down = function(episode, season) {
 
 cache = {};
 
-let url = 'https://eztv.ag/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
+let url = 'https://eztv1.unblocked.is/api/get-torrents?imdb_id=' + id + "&page=";
 console.log(url);
 
 let execute_download = function (cache) {
