@@ -44,14 +44,13 @@ to_down = function(episode, season) {
     if (show_episode == "all") {
         return show_season == season;
     } else {
-        return show_season == season & parseInt(show_episode) == episode;
+        return show_season == season & show_episode.split(',').map(i => parseInt(i)).includes(episode);
     }
 };
 
 cache = {};
 
 let url = 'https://eztv1.unblocked.is/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
-console.log(url);
 
 let execute_download = function (cache) {
     Object.keys(cache).forEach(ep_id => {
