@@ -50,7 +50,7 @@ to_down = function(episode, season) {
 
 cache = {};
 
-let url = 'https://eztv1.unblocked.is/api/get-torrents?imdb_id=' + id + "&page=";
+let url = 'https://eztv1.unblocked.is/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
 console.log(url);
 
 let execute_download = function (cache) {
@@ -59,7 +59,7 @@ let execute_download = function (cache) {
         let result = episodes.filter(episode => (200 <= episode.size && episode.size <= 500));
         episodes.sort((a,b) => (a.size - b.size));
         let e = result.length == 0 ? episodes[0] : result[0];
-        
+
         qbt.add(e.url, e.folder_name, ep_id, (error) => {
              qbt.downloading(ep_id, {}, (error, items) => {
                  qbt.toggleSeqDl(items);
@@ -87,8 +87,6 @@ let download_tor = function (torrents) {
 
         }
     });
-
-    execute_download(cache);
 };
 
 let request_pages = function (page) {
@@ -98,13 +96,16 @@ let request_pages = function (page) {
         try {
             torrents = JSON.parse(response.body).torrents;
         } catch (error) {
+            execute_download(cache);
             console.log("error");
             console.log(error);
             return;
         }
 
-        if (torrents == null)
+        if (torrents == null) {
+            execute_download(cache);
             return;
+        }
         
         download_tor(torrents);
         request_pages(page+1);
