@@ -50,7 +50,7 @@ to_down = function(episode, season) {
 
 cache = {};
 
-let url = 'https://eztv1.unblocked.is/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
+let url = 'https://eztv-ag.unblocksites.club/api/get-torrents?limit=100&imdb_id=' + id + "&page=";
 
 let execute_download = function (cache) {
     Object.keys(cache).forEach(ep_id => {
